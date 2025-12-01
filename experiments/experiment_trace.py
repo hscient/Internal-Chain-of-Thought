@@ -18,7 +18,7 @@ from utils.tools import save_parameter, batch_load_data
 from utils.template import generate_prompt_with_template
 
 from huggingface_hub import login
-login('Your Access Tokens')
+# login('Your Access Tokens')
 
 def main(args, test_model: HookedTransformer, device, constraints_type):
     log_path = save_parameter(args)

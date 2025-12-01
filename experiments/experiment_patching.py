@@ -19,7 +19,7 @@ from src.patching import save_activation, patch_activation, base_run
 from utils.tools import save_parameter, eval_subtask
 
 from huggingface_hub import login
-login('Your Access Tokens')
+# login('Your Access Tokens')
 
 def main(args, test_model: HookedTransformer, device):
     log_path = save_parameter(args)
@@ -55,7 +55,7 @@ def main(args, test_model: HookedTransformer, device):
 
     dataset = ICLDataset(s2_data, args.data_num, args.n_prepended, args.seed, generate_zero= True)
     dataloader = DataLoader(dataset, batch_size=args.batch_size, shuffle=True)
-    for batch in tqdm(dataloader):   
+    for batlch in tqdm(dataloader):
         base_prob = base_run(test_model, batch['prompt'])
         corrupted_prob = base_run(test_model, batch['zero_prompt'])
         base_result[1, :] += eval_subtask(test_model, base_prob, batch, -1, 'accuracy')[0].item()

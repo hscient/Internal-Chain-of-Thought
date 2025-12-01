@@ -19,7 +19,7 @@ from utils.tools import save_parameter, eval_subtask
 from utils.display import draw_line
 
 from huggingface_hub import login
-login('Your Access Tokens')
+# login('Your Access Tokens')
 
 def main(args, test_model: HookedTransformer, device):
     log_path = save_parameter(args)

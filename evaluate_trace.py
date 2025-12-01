@@ -34,7 +34,7 @@ def api_evaluation(
 
 
 if __name__ == "__main__":
-    constraints_type = ["包含约束", "输出格式约束", "语气风格约束"]
+    constraints_type = ["sdd"]
 
     data_list = load_data_with_instructions('data/2024_trace_evaluation.jsonl', constraints_type)
 
