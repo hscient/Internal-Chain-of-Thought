@@ -1,51 +1,54 @@
-# 1. Base Image: CUDA 11.8 & Ubuntu 22.04
 FROM nvidia/cuda:11.8.0-cudnn8-devel-ubuntu22.04
 
-# 2. 시스템 환경 설정
 ENV DEBIAN_FRONTEND=noninteractive
 ENV LC_ALL=C.UTF-8
 ENV LANG=C.UTF-8
 
-# 3. 필수 시스템 패키지 설치
+# 기본 패키지 + PPA 추가를 위한 도구 설치
 RUN apt-get update && apt-get install -y \
     wget \
+    curl \
     bzip2 \
     git \
     libgl1-mesa-glx \
     libglib2.0-0 \
+    ca-certificates \
+    software-properties-common \
     && rm -rf /var/lib/apt/lists/*
 
-# 4. Miniconda 설치 (안전한 방식)
-# 경로를 명확히 잡고, 불필요한 폴더 생성 단계 제거
-ENV PATH="/root/miniconda3/bin:${PATH}"
+# Python 3.11 설치 (deadsnakes PPA 사용)
+RUN add-apt-repository ppa:deadsnakes/ppa -y && \
+    apt-get update && apt-get install -y \
+        python3.11 \
+        python3.11-venv \
+        python3.11-distutils \
+    && rm -rf /var/lib/apt/lists/*
 
-RUN wget https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh -O miniconda.sh \
-    && bash miniconda.sh -b -p /root/miniconda3 \
-    && rm miniconda.sh \
-    && /root/miniconda3/bin/conda init bash
+# Python 3.11용 pip 설치
+RUN curl -sS https://bootstrap.pypa.io/get-pip.py -o get-pip.py && \
+    python3.11 get-pip.py && \
+    rm get-pip.py
 
-# 5. [중요] Shell을 /bin/bash로 변경
-# conda 명령어는 bash 환경에서 가장 안정적입니다.
-SHELL ["/bin/bash", "-c"]
+# venv 생성 (원하면 conda env 비슷하게 쓰기 위해)
+ENV VENV_PATH=/opt/venv
+RUN python3.11 -m venv $VENV_PATH
 
-# 6. Conda 가상환경(ICoT) 생성
-# 전체 경로 사용 + conda-forge 채널 추가 (Python 3.11 호환성 확보) + solver 업데이트
-RUN /root/miniconda3/bin/conda create -n ICoT python=3.11 -y
+# venv 를 기본 python/pip 으로 사용
+ENV PATH="$VENV_PATH/bin:$PATH"
 
-# 7. requirements.txt 복사 및 라이브러리 설치
+# pip 최신화
+RUN pip install --no-cache-dir --upgrade pip
+
+# requirements 복사 및 설치
 COPY requirements.txt /tmp/requirements.txt
 
-# Conda 환경의 pip를 직접 지정하여 실행 (활성화 문제 원천 차단)
-RUN /root/miniconda3/envs/ICoT/bin/pip install --no-cache-dir \
-    --extra-index-url https://download.pytorch.org/whl/cu118 \
-    -r /tmp/requirements.txt
+# requirements.txt 안에 이미 PyTorch CUDA 11.8 extra-index-url 설정 있음
+# (--extra-index-url https://download.pytorch.org/whl/cu118) :contentReference[oaicite:0]{index=0}
+RUN pip install --no-cache-dir -r /tmp/requirements.txt
 
-# 8. 작업 디렉토리 설정
 WORKDIR /workspace
 
-# 9. 컨테이너 접속 시 환경 자동 활성화
-RUN echo "source /root/miniconda3/etc/profile.d/conda.sh" >> ~/.bashrc && \
-    echo "conda activate ICoT" >> ~/.bashrc
+# bash 들어갔을 때 venv 자동 활성화되게 (선택)
+RUN echo "source /opt/venv/bin/activate" >> ~/.bashrc
 
-# 10. 실행 명령
 CMD ["/bin/bash"]

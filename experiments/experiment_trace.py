@@ -62,7 +62,7 @@ if __name__ == "__main__":
     #Load model
     t.set_grad_enabled(False)
     test_model: HookedTransformer = HookedTransformer.from_pretrained(model_name= args.model_name, device= device, default_padding_side= 'left')
-        
+
     main(args, test_model, device, constraints_type)
 
 
