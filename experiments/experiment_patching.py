@@ -108,9 +108,9 @@ if __name__ == "__main__":
         fold_ln=False,
         center_writing_weights=False,
         center_unembed=False,
-        hf_model_kwargs={
-            "device_map": "auto",  # 4개의 GPU에 자동 분배
-        }
+        # hf_model_kwargs={"device_map": "auto"}  
+        device="cuda",  # 메인 디바이스 설정
+        n_devices=4  # 사용할 GPU 개수 (4개로 설정)
     )
 
     with open("data/list.json", "r") as f:
