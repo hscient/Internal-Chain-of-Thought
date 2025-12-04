@@ -19,6 +19,7 @@ from utils.tools import save_parameter, eval_subtask, get_masking_range
 from utils.display import draw_line
 
 from huggingface_hub import login
+## replace with huggingface-cli token
 # login('Your Access Tokens')
 
 def main(args, test_model: HookedTransformer, device):
@@ -65,7 +66,7 @@ if __name__ == "__main__":
     parser.add_argument('--task_name', default='', type=str)
     parser.add_argument('--experiment_name', default='experiment_masking', type=str)
     parser.add_argument('--model_name', default='meta-llama/Llama-3.1-8B', type=str)
-    parser.add_argument('--device', default='cuda', type=str)
+    parser.add_argument('--device', default='cuda:0', type=str)
 
     args = parser.parse_args()
     device = t.device(args.device)

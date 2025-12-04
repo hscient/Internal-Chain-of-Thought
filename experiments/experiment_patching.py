@@ -19,6 +19,7 @@ from src.patching import save_activation, patch_activation, base_run
 from utils.tools import save_parameter, eval_subtask
 
 from huggingface_hub import login
+## replace with huggingface-cli token
 # login('Your Access Tokens')
 
 def main(args, test_model: HookedTransformer, device):
@@ -91,7 +92,7 @@ if __name__ == "__main__":
     parser.add_argument('--subtask2_name', default='', type=str)
     parser.add_argument('--experiment_name', default='experiment_patching', type=str)
     parser.add_argument('--model_name', default='meta-llama/Llama-3.1-8B', type=str)
-    parser.add_argument('--device', default='cuda', type=str)
+    parser.add_argument('--device', default='cuda:0', type=str)
 
     args = parser.parse_args()
     device = t.device(args.device)
@@ -100,18 +101,7 @@ if __name__ == "__main__":
     t.set_grad_enabled(False)
 
     # original code
-    # test_model: HookedTransformer = HookedTransformer.from_pretrained(model_name= args.model_name, device= device, default_padding_side= 'left')
-    # modify to use multi gpu
-    test_model = HookedTransformer.from_pretrained(
-        model_name=args.model_name,
-        default_padding_side='left',
-        fold_ln=False,
-        center_writing_weights=False,
-        center_unembed=False,
-        # hf_model_kwargs={"device_map": "auto"}  
-        device="cuda",  # 메인 디바이스 설정
-        n_devices=4  # 사용할 GPU 개수 (4개로 설정)
-    )
+    test_model: HookedTransformer = HookedTransformer.from_pretrained(model_name= args.model_name, device= device, default_padding_side= 'left')
 
     with open("data/list.json", "r") as f:
         data = json.load(f)

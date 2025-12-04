@@ -18,6 +18,7 @@ from utils.tools import save_parameter, batch_load_data
 from utils.template import generate_prompt_with_template
 
 from huggingface_hub import login
+## replace with huggingface-cli token
 # login('Your Access Tokens')
 
 def main(args, test_model: HookedTransformer, device, constraints_type):
@@ -53,7 +54,7 @@ if __name__ == "__main__":
     parser.add_argument('--task_name', default='trace', type=str)
     parser.add_argument('--experiment_name', default='experiment_trace', type=str)
     parser.add_argument('--model_name', default='Qwen/Qwen2.5-7B-Instruct', type=str)
-    parser.add_argument('--device', default='cuda', type=str)
+    parser.add_argument('--device', default='cuda:0', type=str)
 
     args = parser.parse_args()
     device = t.device(args.device)
