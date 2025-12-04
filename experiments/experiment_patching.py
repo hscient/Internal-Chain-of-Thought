@@ -98,7 +98,20 @@ if __name__ == "__main__":
 
     #Load model
     t.set_grad_enabled(False)
-    test_model: HookedTransformer = HookedTransformer.from_pretrained(model_name= args.model_name, device= device, default_padding_side= 'left')
+
+    # original code
+    # test_model: HookedTransformer = HookedTransformer.from_pretrained(model_name= args.model_name, device= device, default_padding_side= 'left')
+    # modify to use multi gpu
+    test_model = HookedTransformer.from_pretrained(
+        model_name=args.model_name,
+        default_padding_side='left',
+        fold_ln=False,
+        center_writing_weights=False,
+        center_unembed=False,
+        hf_model_kwargs={
+            "device_map": "auto",  # 4개의 GPU에 자동 분배
+        }
+    )
 
     with open("data/list.json", "r") as f:
         data = json.load(f)
